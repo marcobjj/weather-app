@@ -18,6 +18,7 @@ var forecastURL = "http://api.openweathermap.org/data/2.5/forecast?q=";
 var uvURL = "http://api.openweathermap.org/data/2.5/uvi?";
 
 var displayCity = document.querySelector("#display-city");
+var searchBtn = document.querySelector("#search-btn");
 
 
 
@@ -88,14 +89,15 @@ uv.textContent = "UV Index: ";
 
 var index = document.createElement("span");
 
+
 var value = coord.value;
 
 index.textContent = value;
 
 
-if (value <= 2) index.setAttribute("class","alert alert-success");
-else if (value <= 5) index.setAttribute("class","alert alert-warning");
-else index.setAttribute("class","alert alert-danger");
+if (value <= 2) index.setAttribute("class","bg-success p-2 rounded text-white");
+else if (value <= 5) index.setAttribute("class","bg-warning p-2 rounded text-white");
+else index.setAttribute("class","alert bg-danger rounded p-2 text-white");
 
 
 
@@ -153,8 +155,13 @@ var displayForecast = function (data, city) {
 
     var day = 1;
 
-    for (var i = 5; dayHourArray.length; i += 8) {
+    for (var i = 0; i < dayHourArray.length; i ++) {
 
+        var dt = dayHourArray[i].dt_txt;
+
+        // free api only gives every 3 hours forecast (array with 40 items, therefore 5 days) . Forecast timezone seems off by 6 hours. Returns the weather at 12pm for each day "
+
+        if(dt.split(" ")[1] != "18:00:00") continue;
 
         var data1 = dayHourArray[i];
         var displayDay = document.querySelector("#day" + day);
@@ -167,12 +174,13 @@ var displayForecast = function (data, city) {
         displayDay.innerHTML = "";
 
         var icon = document.createElement("img");
+        
         icon.setAttribute("src", "http://openweathermap.org/img/w/" + data1.weather[0].icon + ".png");
 
         var date = data1.dt_txt.split(" ")[0];
 
-        var cityName = document.createElement("h6");
-        cityName.textContent = city + " " + date;
+        var cityDate = document.createElement("h6");
+        cityDate.textContent =  date;
 
         var temperature = document.createElement("p");
         temperature.textContent = "Temp: " + toFarenheit(data1.main.temp) + " \u00B0F";
@@ -180,7 +188,7 @@ var displayForecast = function (data, city) {
         var humidity = document.createElement("p");
         humidity.textContent = "Humidity: " + data1.main.humidity + "%";
 
-        displayDay.appendChild(cityName);
+        displayDay.appendChild(cityDate);
         displayDay.appendChild(icon);
         displayDay.appendChild(temperature);
         displayDay.appendChild(humidity);
@@ -190,6 +198,7 @@ var displayForecast = function (data, city) {
 
 }
 
+getWeather("los angeles");
 
 var toFarenheit = function (kelvin) {
 
@@ -198,3 +207,13 @@ var toFarenheit = function (kelvin) {
 
     return ff;
 }
+
+
+var searchHandler = function () {
+
+    var inputField = document.querySelector("#input-field");
+   if(inputField.value) getWeather(inputField.value);
+}
+
+
+searchBtn.addEventListener('click', searchHandler)
