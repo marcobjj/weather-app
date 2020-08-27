@@ -17,7 +17,7 @@ var weatherURL = "https://api.openweathermap.org/data/2.5/weather?q=";
 var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?q=";
 var uvURL = "https://api.openweathermap.org/data/2.5/uvi?";
 
-var weatherApp = {cities:["Los Angeles"]};
+var weatherApp = { cities: ["Los Angeles"] };
 
 var displayCity = document.querySelector("#display-city");
 var searchBtn = document.querySelector("#search-btn");
@@ -42,11 +42,11 @@ var getWeather = function (city) {
 
                 return data.coord
 
-            }).then(function(coord) {
+            }).then(function (coord) {
 
                 getUV(coord);
 
-            })  ;
+            });
         } else {
             alert("Error: " + response.statusText);
         }
@@ -63,38 +63,34 @@ var saveCity = function (city) {
 
     var cities = weatherApp.cities;
 
-    for (var i = 0; i < cities.length; i++)
-    {
+    for (var i = 0; i < cities.length; i++) {
         var city1 = cities[i];
-        
 
-        if (city == city1) 
-        
-        {
+
+        if (city == city1) {
             searched = true;
 
-            
+
         }
-        
+
     }
 
     if (!searched) weatherApp.cities.push(city);
-    if(weatherApp.cities.length > 8) weatherApp.cities.shift();
+    if (weatherApp.cities.length > 8) weatherApp.cities.shift();
 
-    localStorage.setItem("weatherApp",JSON.stringify(weatherApp));
+    localStorage.setItem("weatherApp", JSON.stringify(weatherApp));
 
     displayList();
-   
+
 }
 
 var displayList = function () {
-  
+
     cityList.innerHTML = '';
-    
+
     var cities = weatherApp.cities;
-    
-    for (var i = cities.length -1; i >= 0; i--)
-    {
+
+    for (var i = cities.length - 1; i >= 0; i--) {
 
         var li = document.createElement("li");
         li.setAttribute("class", "list-group-item");
@@ -135,7 +131,7 @@ var getUV = function (coord) {
             response.json().then(function (data) {
 
                 console.log(data);
-                 displayUV(data);
+                displayUV(data);
             });
         } else {
             alert("Error: " + response.statusText);
@@ -147,25 +143,25 @@ var getUV = function (coord) {
 
 var displayUV = function (coord) {
 
-var uv = document.createElement("p");
-uv.textContent = "UV Index: ";
+    var uv = document.createElement("p");
+    uv.textContent = "UV Index: ";
 
-var index = document.createElement("span");
-
-
-var value = coord.value;
-
-index.textContent = value;
+    var index = document.createElement("span");
 
 
-if (value <= 2) index.setAttribute("class","bg-success p-2 rounded text-white");
-else if (value <= 5) index.setAttribute("class","bg-warning p-2 rounded text-white");
-else index.setAttribute("class","alert bg-danger rounded p-2 text-white");
+    var value = coord.value;
+
+    index.textContent = value;
+
+
+    if (value <= 2) index.setAttribute("class", "bg-success p-2 rounded text-white");
+    else if (value <= 5) index.setAttribute("class", "bg-warning p-2 rounded text-white");
+    else index.setAttribute("class", "alert bg-danger rounded p-2 text-white");
 
 
 
-uv.appendChild(index);
-displayCity.appendChild(uv);
+    uv.appendChild(index);
+    displayCity.appendChild(uv);
 
 
 }
@@ -218,13 +214,13 @@ var displayForecast = function (data, city) {
 
     var day = 1;
 
-    for (var i = 0; i < dayHourArray.length; i ++) {
+    for (var i = 0; i < dayHourArray.length; i++) {
 
         var dt = dayHourArray[i].dt_txt;
 
         // free api only gives every 3 hours forecast (array with 40 items, therefore 5 days) . Forecast timezone seems off by 6 hours. Returns the weather at 12pm for each day "
 
-        if(dt.split(" ")[1] != "18:00:00") continue;
+        if (dt.split(" ")[1] != "18:00:00") continue;
 
         var data1 = dayHourArray[i];
         var displayDay = document.querySelector("#day" + day);
@@ -243,7 +239,7 @@ var displayForecast = function (data, city) {
         var date = data1.dt_txt.split(" ")[0];
 
         var cityDate = document.createElement("h6");
-        cityDate.textContent =  date;
+        cityDate.textContent = date;
 
         var temperature = document.createElement("p");
         temperature.textContent = "Temp: " + toFarenheit(data1.main.temp) + " \u00B0F";
@@ -261,22 +257,19 @@ var displayForecast = function (data, city) {
 
 }
 
-var init = function ()
+var init = function () {
 
-{
-
-   var temp = localStorage.getItem("weatherApp");
-    if(temp)
-    {
+    var temp = localStorage.getItem("weatherApp");
+    if (temp) {
         weatherApp = JSON.parse(temp);
         console.log(weatherApp);
 
-        var last = weatherApp.cities.length -1;
+        var last = weatherApp.cities.length - 1;
         getWeather(weatherApp.cities[last]);
 
     }
-    else{
-    getWeather("los angeles");
+    else {
+        getWeather("los angeles");
     }
 }
 
@@ -293,10 +286,10 @@ var searchHandler = function () {
 
     var inputField = document.querySelector("#input-field");
 
-   if(inputField.value){
-    
-    getWeather(inputField.value);
-   }
+    if (inputField.value) {
+
+        getWeather(inputField.value);
+    }
 }
 
 var cityClickHandler = function (event) {
@@ -308,5 +301,5 @@ var cityClickHandler = function (event) {
 
 init();
 
-cityList.addEventListener('click',cityClickHandler);
+cityList.addEventListener('click', cityClickHandler);
 searchBtn.addEventListener('click', searchHandler)
