@@ -17,7 +17,7 @@ var weatherURL = "https://api.openweathermap.org/data/2.5/weather?q=";
 var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?q=";
 var uvURL = "https://api.openweathermap.org/data/2.5/uvi?";
 
-var weatherApp = { cities: ["Los Angeles"] };
+var weatherApp = { cities: ["Nuuk"] };
 
 var displayCity = document.querySelector("#display-city");
 var searchBtn = document.querySelector("#search-btn");
@@ -38,11 +38,15 @@ var getWeather = function (city) {
 
                 displayWeather(data);
                 getForecast(data.name);
-                saveCity(data.name);
+                saveCity(data.name + ", " + data.sys.country);
 
                 return data.coord
 
             }).then(function (coord) {
+
+                //  UV data loads from a different query but appends to the same displayWeather element. 
+                // this makes sure the UV paragraph doesn't get erased when the innerHTML is reset  ,
+                // in case weather data takes longer to fetch than UV data
 
                 getUV(coord);
 
@@ -93,7 +97,7 @@ var displayList = function () {
     for (var i = cities.length - 1; i >= 0; i--) {
 
         var li = document.createElement("li");
-        li.setAttribute("class", "list-group-item");
+        li.setAttribute("class", "list-group-item pointer");
 
         li.textContent = cities[i];
         cityList.appendChild(li);
@@ -129,8 +133,8 @@ var getUV = function (coord) {
     fetch(apiUrl).then(function (response) {
         if (response.ok) {
             response.json().then(function (data) {
-
-                console.log(data);
+                
+                
                 displayUV(data);
             });
         } else {
@@ -169,7 +173,7 @@ var displayUV = function (coord) {
 
 var displayWeather = function (data) {
 
-    console.log(data);
+
 
     displayCity.innerHTML = "";
 
@@ -179,7 +183,7 @@ var displayWeather = function (data) {
 
     var date = moment.unix(data.dt).format("MM-DD-YYYY");
 
-    city.textContent = data.name + " (" + date + ")";
+    city.textContent = data.name + ", " + data.sys.country + " (" + date + ")";
 
     var icon = document.createElement("img");
     icon.setAttribute("src", "http://openweathermap.org/img/w/" + data.weather[0].icon + ".png");
@@ -194,7 +198,7 @@ var displayWeather = function (data) {
     humidity.textContent = "Humidity: " + data.main.humidity + "%";
 
     var windSpeed = document.createElement("p");
-    windSpeed.textContent = "Wind: " + data.wind.speed + "MPH";
+    windSpeed.textContent = "Wind: " + data.wind.speed + " MPH";
 
     displayCity.appendChild(city);
     displayCity.appendChild(temperature);
@@ -206,7 +210,7 @@ var displayWeather = function (data) {
 
 var displayForecast = function (data, city) {
 
-    console.log(data);
+
 
     var dayHourArray = data.list;
 
@@ -216,10 +220,15 @@ var displayForecast = function (data, city) {
 
     for (var i = 0; i < dayHourArray.length; i++) {
 
+        // get date
+
         var dt = dayHourArray[i].dt_txt;
 
-        // free api only gives every 3 hours forecast (array with 40 items, therefore 5 days) . Forecast timezone seems off by 6 hours. Returns the weather at 12pm for each day "
+        // never display today's weather on forecast
 
+        if (dt.split(" ")[0].split("-")[2] == moment().format("DD")) continue;
+
+        // free api only gives every 3 hours forecast (array with 40 items, therefore 5 days) . Forecast timezone seems off by 6 hours. Returns the weather at 12pm for each day "
         if (dt.split(" ")[1] != "18:00:00") continue;
 
         var data1 = dayHourArray[i];
@@ -237,6 +246,7 @@ var displayForecast = function (data, city) {
         icon.setAttribute("src", "http://openweathermap.org/img/w/" + data1.weather[0].icon + ".png");
 
         var date = data1.dt_txt.split(" ")[0];
+        date = moment(date).format("MM-DD-YYYY");
 
         var cityDate = document.createElement("h6");
         cityDate.textContent = date;
@@ -257,6 +267,8 @@ var displayForecast = function (data, city) {
 
 }
 
+//make sure the app is displaying something upon load. Either the last saved city, if not it shows Nuuk in Greenland.
+
 var init = function () {
 
     var temp = localStorage.getItem("weatherApp");
@@ -269,7 +281,7 @@ var init = function () {
 
     }
     else {
-        getWeather("los angeles");
+        getWeather("nuuk");
     }
 }
 
