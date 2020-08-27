@@ -17,8 +17,13 @@ var weatherURL = "https://api.openweathermap.org/data/2.5/weather?q=";
 var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?q=";
 var uvURL = "https://api.openweathermap.org/data/2.5/uvi?";
 
+var weatherApp = {cities:["Los Angeles"]};
+
 var displayCity = document.querySelector("#display-city");
 var searchBtn = document.querySelector("#search-btn");
+var cityList = document.querySelector("#city-list");
+
+var noSearch = true;
 
 
 
@@ -33,12 +38,70 @@ var getWeather = function (city) {
 
                 displayWeather(data);
                 getForecast(data.name);
-                getUV(data.coord);
-            });
+                saveCity(data.name);
+
+                return data.coord
+
+            }).then(function(coord) {
+
+                getUV(coord);
+
+            })  ;
         } else {
             alert("Error: " + response.statusText);
         }
     });
+
+
+}
+
+
+var saveCity = function (city) {
+
+
+    var searched = false;
+
+    var cities = weatherApp.cities;
+
+    for (var i = 0; i < cities.length; i++)
+    {
+        var city1 = cities[i];
+        
+
+        if (city == city1) 
+        
+        {
+            searched = true;
+
+            
+        }
+        
+    }
+
+    if (!searched) weatherApp.cities.push(city);
+    if(weatherApp.cities.length > 8) weatherApp.cities.shift();
+
+    localStorage.setItem("weatherApp",JSON.stringify(weatherApp));
+
+    displayList();
+   
+}
+
+var displayList = function () {
+  
+    cityList.innerHTML = '';
+    
+    var cities = weatherApp.cities;
+    
+    for (var i = cities.length -1; i >= 0; i--)
+    {
+
+        var li = document.createElement("li");
+        li.setAttribute("class", "list-group-item");
+
+        li.textContent = cities[i];
+        cityList.appendChild(li);
+    }
 
 
 }
@@ -198,7 +261,24 @@ var displayForecast = function (data, city) {
 
 }
 
-getWeather("los angeles");
+var init = function ()
+
+{
+
+   var temp = localStorage.getItem("weatherApp");
+    if(temp)
+    {
+        weatherApp = JSON.parse(temp);
+        console.log(weatherApp);
+
+        var last = weatherApp.cities.length -1;
+        getWeather(weatherApp.cities[last]);
+
+    }
+    else{
+    getWeather("los angeles");
+    }
+}
 
 var toFarenheit = function (kelvin) {
 
@@ -212,8 +292,21 @@ var toFarenheit = function (kelvin) {
 var searchHandler = function () {
 
     var inputField = document.querySelector("#input-field");
-   if(inputField.value) getWeather(inputField.value);
+
+   if(inputField.value){
+    
+    getWeather(inputField.value);
+   }
 }
 
+var cityClickHandler = function (event) {
 
+    var city = event.target.textContent;
+
+    getWeather(city);
+}
+
+init();
+
+cityList.addEventListener('click',cityClickHandler);
 searchBtn.addEventListener('click', searchHandler)
