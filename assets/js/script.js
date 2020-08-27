@@ -13,9 +13,9 @@
 
 const appID = "859953ab4803d79f48f7a0ab1d43109d";
 
-var weatherURL = "http://api.openweathermap.org/data/2.5/weather?q=";
-var forecastURL = "http://api.openweathermap.org/data/2.5/forecast?q=";
-var uvURL = "http://api.openweathermap.org/data/2.5/uvi?";
+var weatherURL = "https://api.openweathermap.org/data/2.5/weather?q=";
+var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?q=";
+var uvURL = "https://api.openweathermap.org/data/2.5/uvi?";
 
 var displayCity = document.querySelector("#display-city");
 var searchBtn = document.querySelector("#search-btn");
@@ -174,7 +174,7 @@ var displayForecast = function (data, city) {
         displayDay.innerHTML = "";
 
         var icon = document.createElement("img");
-        
+
         icon.setAttribute("src", "http://openweathermap.org/img/w/" + data1.weather[0].icon + ".png");
 
         var date = data1.dt_txt.split(" ")[0];
